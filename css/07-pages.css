@@ -1,0 +1,2688 @@
+/* =========================================================================
+   محاكي قياس — 07-pages.css
+   صفحات: الحساب · الاشتراك · الدخول/التسجيل/استعادة كلمة المرور ·
+           الصفحة التعريفية · شاشة البداية (Splash) · شاشات التعريف (Onboarding)
+
+   ⚠️ لا يعيد هذا الملف تنسيق ما غطّاه 03-components.css
+      (‎.btn ‎.card ‎.badge ‎.form-group ‎ الحقول ‎.modal-backdrop ‎.delete-modal
+       ‎.legal-link ‎.alert) — يوسّعه فقط عند حاجة الصفحة.
+   ⚠️ كل الأسماء مطابقة تماماً للـHTML والـJS الحاليين — لا تُعاد تسميتها.
+   ⚠️ كل الألوان من 01-tokens.css. الاستثناءان الوحيدان:
+      ‎#fff‎ فوق الخلفيات الملوّنة، وألوان شعار Google الرسمية داخل الـSVG.
+   التحميل: بعد 05-dashboard.css.
+   ========================================================================= */
+
+
+/* =========================================================================
+   1) صفحة الحساب  —  account.html
+   الحاوية ‎.account-page‎ منسَّقة أصلاً في 04-layout.css.
+   ========================================================================= */
+
+/* -------------------------------------------------------------------------
+   1.1 كتلة الترحيب + حالة التحميل
+   ‎.account-welcome-section‎ و‎.account-loading‎ لهما أساس في 04 و 03،
+   وهنا لمسات خاصة بالصفحة فقط.
+   ------------------------------------------------------------------------- */
+.account-welcome-section{
+  padding-bottom:var(--s-1);
+}
+
+#account-loading,
+.account-loading{
+  min-height:40vh;
+  animation:page-fade-in .25s var(--ease) both;
+}
+
+
+/* -------------------------------------------------------------------------
+   1.2 شبكة بطاقات الحساب  —  #account-content / .account-grid
+   عمود واحد في الجوال · عمودان من 860px · ‎.full-width‎ تمتدّ على العمودين.
+   ------------------------------------------------------------------------- */
+#account-content,
+.account-grid{
+  display:grid;
+  grid-template-columns:1fr;
+  align-items:start;              /* لا تُمطّ البطاقات القصيرة */
+  gap:var(--card-gap);
+  animation:page-fade-in .3s var(--ease) both;
+}
+
+@media (min-width:860px){
+  #account-content,
+  .account-grid{
+    grid-template-columns:repeat(2, minmax(0, 1fr));
+    gap:var(--s-4);
+  }
+
+  .account-grid > .full-width,
+  #account-content > .full-width{
+    grid-column:1 / -1;
+  }
+}
+
+
+/* -------------------------------------------------------------------------
+   1.3 بطاقة الحساب  —  .account-card
+   الخلفية والظل والحواف من 03-components.css.
+   ------------------------------------------------------------------------- */
+.account-card > h2{
+  margin:0 0 var(--s-3);
+  font-size:var(--fs-card);
+  font-weight:var(--fw-bold);
+  letter-spacing:-.3px;
+  color:var(--text);
+}
+
+.account-card > p{
+  margin:0 0 var(--s-3);
+  font-size:var(--fs-body);
+  line-height:var(--lh-readable);
+  color:var(--text2);
+}
+
+/* أي زر داخل البطاقة يأخذ مسافة فاصلة عن المحتوى فوقه */
+.account-card > button{ margin-top:var(--s-2); }
+
+
+/* -------------------------------------------------------------------------
+   1.4 صفّ بيانات  —  .account-row / .account-label / .account-value
+   ------------------------------------------------------------------------- */
+.account-row{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:var(--s-3);
+
+  padding:12px 0;
+  border-bottom:1px solid var(--border);
+}
+.account-row:last-child{ border-bottom:0; }
+
+/* الصفّ الفارغ الموجود في الـHTML لا يترك فراغاً ولا خطاً */
+.account-row:empty{ display:none; }
+
+/* الصفّ الذي يحوي مسافات بيضاء فقط (‎:empty‎ لا يلتقطه) */
+@supports selector(:has(*)){
+  .account-row:not(:has(> *)){ display:none; }
+}
+
+.account-label{
+  flex:none;
+  font-size:12.5px;
+  font-weight:var(--fw-medium);
+  line-height:var(--lh-normal);
+  color:var(--text2);
+}
+
+.account-value{
+  min-width:0;
+  font-size:var(--fs-body);
+  font-weight:var(--fw-semibold);
+  line-height:var(--lh-normal);
+  color:var(--text);
+  text-align:end;
+  word-break:break-all;
+  font-variant-numeric:tabular-nums;
+}
+
+/* البريد الإلكتروني لاتيني — يُعزل حتى لا ينقلب ترتيبه داخل صفحة RTL */
+#account-email,
+.account-value.is-email{
+  direction:ltr;
+  unicode-bidi:isolate;
+}
+
+/* داخل صفحة RTL يبقى النص ملاصقاً لنهاية الصف (أي إلى اليسار) */
+[dir="rtl"] #account-email,
+[dir="rtl"] .account-value.is-email{ text-align:left; }
+
+/* حالات الخطة القادمة من الـJS: status-badge active / free / expired
+   (03 يغطّي ‎.status-free‎ و‎.status-active‎ و‎.status-expired‎ — نكمل الأسماء المختصرة) */
+.status-badge.active{ background:var(--tint-success); color:var(--success); }
+.status-badge.expired{ background:var(--tint-danger);  color:var(--danger); }
+
+
+/* -------------------------------------------------------------------------
+   1.5 روابط الخصوصية والقوانين  —  .legal-links
+   العنصر ‎.legal-link‎ منسَّق في 03؛ هنا ضبط الحواف داخل البطاقة فقط.
+   ------------------------------------------------------------------------- */
+.account-card .legal-links{
+  margin-top:calc(var(--s-1) * -1);
+}
+
+/* رابط «إدارة الاشتراك» يظهر منفرداً داخل بطاقة الخطة */
+.account-card > .legal-link{
+  margin-top:var(--s-3);
+  border-top:1px solid var(--border);
+  border-bottom:0;
+}
+
+
+/* -------------------------------------------------------------------------
+   1.6 بطاقة الخطر  —  .account-card.danger-card
+   ------------------------------------------------------------------------- */
+.account-card.danger-card{
+  border:1px solid var(--tint-danger);
+  background:var(--surface);
+}
+
+[data-theme="dark"] .account-card.danger-card{
+  border-color:var(--tint-danger);
+}
+
+.account-card.danger-card > h2{
+  color:var(--danger);
+}
+
+/* قائمة ما سيُحذف — نقاط صغيرة بلون الخطر */
+.danger-list{
+  display:flex;
+  flex-direction:column;
+  gap:var(--s-2);
+  margin:0 0 var(--s-4);
+  padding:0;
+  list-style:none;
+}
+
+.danger-list li{
+  position:relative;
+  padding-inline-start:18px;
+
+  font-size:var(--fs-sm);
+  line-height:var(--lh-readable);
+  color:var(--text2);
+}
+
+.danger-list li::before{
+  content:'';
+  position:absolute;
+  inset-inline-start:0;
+  top:.72em;
+
+  width:6px;
+  height:6px;
+  border-radius:50%;
+  background:var(--danger);
+  opacity:.75;
+}
+
+
+/* -------------------------------------------------------------------------
+   1.7 أزرار الحساب  —  الخروج · حذف الحساب
+   المظهر الأساسي في 03؛ هنا المسافات فقط.
+   ------------------------------------------------------------------------- */
+#account-logout-button,
+.logout-account-button{
+  margin-top:var(--s-1);
+}
+
+#open-delete-modal,
+.delete-account-button{
+  margin-top:var(--s-1);
+}
+
+
+/* -------------------------------------------------------------------------
+   1.8 نافذة تأكيد الحذف  —  رسالة الحالة وأزرار الإجراء
+   الـJS يضع ‎class="status-message"‎ فارغة، ثم ‎"status-message error"‎.
+   لذلك تبقى مخفية ما لم تحمل حالة.
+   ------------------------------------------------------------------------- */
+#delete-status-message,
+.delete-modal .status-message{
+  display:none;
+  margin-top:var(--s-3);
+}
+
+#delete-status-message.error,
+#delete-status-message.success,
+#delete-status-message.info,
+.delete-modal .status-message.error,
+.delete-modal .status-message.success,
+.delete-modal .status-message.info{
+  display:flex;
+}
+
+.status-message.success{ background:var(--tint-success); color:var(--success); }
+.status-message.info{    background:var(--tint-primary); color:var(--primary); }
+
+/* صفّ أزرار النافذة — ‎.modal-actions‎ مرن أصلاً في 03 */
+.delete-modal .modal-actions{
+  margin-top:var(--s-4);
+}
+
+.delete-modal .modal-button{
+  flex:1 1 0;
+  min-width:0;
+  padding-inline:var(--s-3);
+  font-size:var(--fs-body);
+}
+
+/* الإلغاء أولاً في ترتيب القراءة العربي، والتأكيد بعده */
+.delete-modal .cancel-button{ order:1; }
+.delete-modal .confirm-delete-button{ order:2; }
+
+
+/* =========================================================================
+   2) صفحة الاشتراك  —  subscription.html
+   ========================================================================= */
+
+/* -------------------------------------------------------------------------
+   2.1 عنوان الصفحة  —  .subscription-heading
+   ------------------------------------------------------------------------- */
+.subscription-heading{
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+  padding:var(--s-2) 0 0;
+}
+
+.subscription-heading h1{
+  margin:0;
+  font-size:var(--fs-page);
+  font-weight:var(--fw-bold);
+  line-height:var(--lh-tight);
+  letter-spacing:-.4px;
+  color:var(--text);
+}
+
+.subscription-heading p{
+  margin:0;
+  max-width:56ch;
+  font-size:var(--fs-body);
+  line-height:var(--lh-readable);
+  color:var(--text2);
+}
+
+
+/* -------------------------------------------------------------------------
+   2.2 بطاقة الباقة  —  .plan-card
+   ------------------------------------------------------------------------- */
+.plan-card{
+  background:var(--surface);
+  border-radius:var(--r-xl);
+  box-shadow:var(--sh-raise);
+  overflow:hidden;                /* لقصّ التدرّج والوهج داخل الحواف */
+}
+
+[data-theme="dark"] .plan-card{
+  border:1px solid var(--border);
+}
+
+
+/* -------------------------------------------------------------------------
+   2.3 رأس الباقة  —  .plan-header
+   تدرّج بلون الهوية + وهج ذهبي زخرفي.
+   ------------------------------------------------------------------------- */
+.plan-header{
+  position:relative;
+  overflow:hidden;
+
+  padding:var(--s-7) var(--s-5) var(--s-6);
+  text-align:center;
+
+  background:linear-gradient(150deg, var(--primary-dark), var(--primary));
+  color:#fff;
+}
+
+/* الوهج الذهبي الزخرفي */
+.plan-header::before{
+  content:'';
+  position:absolute;
+  inset-inline-end:-70px;
+  top:-90px;
+  width:230px;
+  height:230px;
+  border-radius:50%;
+  background:radial-gradient(circle, var(--gold-light), transparent 68%);
+  opacity:.20;
+  pointer-events:none;
+}
+
+/* كل المحتوى فوق الوهج */
+.plan-header > *{
+  position:relative;
+  z-index:1;
+}
+
+.plan-header h2{
+  margin:0 0 5px;
+  font-size:var(--fs-section);
+  font-weight:var(--fw-bold);
+  letter-spacing:-.3px;
+  color:#fff;
+}
+
+.plan-header p{
+  margin:0 0 var(--s-4);
+  font-size:var(--fs-sm);
+  line-height:var(--lh-normal);
+  color:#fff;
+  opacity:.78;
+}
+
+
+/* -------------------------------------------------------------------------
+   2.4 السعر  —  .plan-price
+   ------------------------------------------------------------------------- */
+.plan-price{
+  display:flex;
+  align-items:baseline;
+  justify-content:center;
+  gap:var(--s-2);
+}
+
+.plan-price strong{
+  font-size:var(--fs-display);
+  font-weight:var(--fw-bold);
+  line-height:1;
+  letter-spacing:-2px;
+  color:var(--gold-light);
+  font-variant-numeric:tabular-nums;
+}
+
+.plan-price span{
+  font-size:var(--fs-sm);
+  font-weight:var(--fw-semibold);
+  color:#fff;
+  opacity:.72;
+}
+
+
+/* -------------------------------------------------------------------------
+   2.5 جسم الباقة  —  .plan-body · .plan-features · .payment-note
+   ------------------------------------------------------------------------- */
+.plan-body{
+  display:flex;
+  flex-direction:column;
+  gap:var(--s-5);
+  padding:var(--s-6) var(--s-5) var(--s-6);
+}
+
+.plan-features{
+  display:flex;
+  flex-direction:column;
+  gap:var(--s-3);
+  margin:0;
+  padding:0;
+  list-style:none;
+}
+
+/* ℹ️ ملاحظة للمطوّر: احذف رمز ✅ من بداية كل ‎<li>‎ في subscription.html —
+   علامة الصح أصبحت تُرسم بالـCSS عبر ‎::before‎ حتى تتّسق ألوانها مع الهوية. */
+.plan-features li{
+  display:flex;
+  align-items:flex-start;
+  gap:11px;
+
+  font-size:var(--fs-body);
+  line-height:var(--lh-readable);
+  color:var(--text2);
+}
+
+.plan-features li::before{
+  content:'✓';
+  flex:none;
+
+  width:19px;
+  height:19px;
+  margin-top:5px;
+
+  display:grid;
+  place-items:center;
+
+  font-size:11px;
+  font-weight:var(--fw-bold);
+  line-height:1;
+
+  background:var(--tint-success);
+  color:var(--success);
+  border-radius:50%;
+}
+
+/* ‎.purchase-button‎ بعرض كامل وحالة التعطيل مغطّاة في 03 */
+.plan-body .purchase-button{
+  margin-top:var(--s-1);
+}
+
+.payment-note{
+  margin:0;
+  text-align:center;
+  font-size:var(--fs-xs);
+  line-height:var(--lh-readable);
+  color:var(--text3);
+}
+
+
+/* -------------------------------------------------------------------------
+   2.6 الوضع الليلي — رأس الباقة
+   ‎--primary‎ يصبح فاتحاً في الليل، فنخفض سطوع الرأس ونضيف فاصلاً.
+   ------------------------------------------------------------------------- */
+[data-theme="dark"] .plan-header{
+  background:linear-gradient(150deg, var(--surface2), var(--primary-dark) 90%);
+  border-bottom:1px solid var(--border);
+}
+
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]) .plan-header{
+    background:linear-gradient(150deg, var(--surface2), var(--primary-dark) 90%);
+    border-bottom:1px solid var(--border);
+  }
+  :root:not([data-theme="light"]) .plan-card{
+    border:1px solid var(--border);
+  }
+}
+
+
+/* =========================================================================
+   3) صفحات الدخول  —  login.html · signup.html · reset-password.html
+   لا هيدر ولا شريط تبويب في هذه الصفحات، فتحتاج تخطيطها الخاص.
+
+   الاستخدام: إمّا ‎<body class="auth-page">‎ مع ‎<main class="card">‎ الحالي،
+   وإمّا إضافة ‎class="auth-panel"‎ على الـ‎<main>‎ مباشرة. كلاهما يعمل.
+   ========================================================================= */
+
+body.auth-page{
+  background:var(--bg);
+}
+
+/* -------------------------------------------------------------------------
+   3.1 اللوحة  —  الصفحة نفسها هي البطاقة في الجوال (بلا خلفية ولا ظل)
+   ------------------------------------------------------------------------- */
+body.auth-page > .card,
+.auth-panel{
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  gap:var(--s-5);
+
+  min-height:100dvh;
+  min-height:100vh;               /* احتياطي للمتصفحات القديمة */
+
+  width:100%;
+  max-width:440px;
+  margin-inline:auto;
+
+  padding:calc(var(--s-6) + var(--safe-top))
+          max(var(--s-5), var(--safe-start))
+          calc(var(--s-6) + var(--safe-bottom))
+          max(var(--s-5), var(--safe-end));
+
+  background:transparent;
+  border:0;
+  border-radius:0;
+  box-shadow:none;
+}
+
+/* إلغاء حدّ البطاقة الليلي القادم من 03 */
+[data-theme="dark"] body.auth-page > .card,
+[data-theme="dark"] .auth-panel{ border:0; }
+
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]) body.auth-page > .card,
+  :root:not([data-theme="light"]) .auth-panel{ border:0; }
+}
+
+
+/* -------------------------------------------------------------------------
+   3.2 الترويسة  —  .auth-mark · .app-name · العنوان · .subtitle
+   ------------------------------------------------------------------------- */
+
+/* علامة التطبيق المربّعة (عنصر جديد — يُضاف يدوياً فوق ‎.app-name‎) */
+.auth-mark{
+  width:60px;
+  height:60px;
+  flex:none;
+
+  display:grid;
+  place-items:center;
+  margin:0 auto;
+
+  font-size:23px;
+  font-weight:var(--fw-bold);
+  line-height:1;
+
+  color:var(--gold-light);
+  background:linear-gradient(135deg, var(--primary), var(--primary-dark));
+  border-radius:var(--r-lg);
+  box-shadow:var(--sh-btn-primary);
+}
+
+.auth-mark svg{
+  width:28px;
+  height:28px;
+  stroke:currentColor;
+  fill:none;
+  stroke-width:1.8;
+}
+
+.app-name{
+  text-align:center;
+  font-size:var(--fs-lg);
+  font-weight:var(--fw-bold);
+  letter-spacing:-.3px;
+  color:var(--primary);
+}
+
+body.auth-page > .card > h1,
+body.auth-page > .card > h2,
+.auth-panel > h1,
+.auth-panel > h2{
+  margin:0;
+  text-align:center;
+  font-size:var(--fs-hero);
+  font-weight:var(--fw-bold);
+  line-height:var(--lh-tight);
+  letter-spacing:-.5px;
+  color:var(--text);
+}
+
+.subtitle{
+  margin:calc(var(--s-3) * -1) 0 0;   /* يلتصق بالعنوان فوقه */
+  text-align:center;
+  font-size:var(--fs-body);
+  line-height:var(--lh-readable);
+  color:var(--text2);
+}
+
+
+/* -------------------------------------------------------------------------
+   3.3 النموذج  —  الحقول والأزرار
+   الحقول و‎.form-group‎ منسَّقة في 03؛ هنا التباعد فقط.
+   ------------------------------------------------------------------------- */
+body.auth-page form,
+.auth-panel form{
+  display:flex;
+  flex-direction:column;
+  gap:var(--s-4);
+}
+
+.password-help{
+  line-height:var(--lh-normal);
+}
+
+/* زرّ «حفظ كلمة المرور» في reset-password.html بلا كلاس — نمنحه المظهر الأساسي */
+#updatePasswordButton{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:var(--s-2);
+
+  width:100%;
+  min-height:var(--tap-min);
+  padding:13px 20px;
+  margin-top:var(--s-1);
+
+  font-family:var(--font);
+  font-size:var(--fs-md);
+  font-weight:var(--fw-semibold);
+  line-height:1.2;
+
+  background:linear-gradient(180deg, var(--primary-light), var(--primary));
+  color:#fff;
+  border:1px solid transparent;
+  border-radius:var(--r-md);
+  box-shadow:var(--sh-btn-primary);
+
+  transition:transform var(--dur) var(--ease), opacity var(--dur) var(--ease);
+  -webkit-tap-highlight-color:transparent;
+}
+#updatePasswordButton:active{ transform:scale(.975); }
+#updatePasswordButton:disabled{ opacity:.5; box-shadow:none; transform:none; cursor:not-allowed; }
+
+
+/* -------------------------------------------------------------------------
+   3.4 موافقة الشروط  —  .terms-group  (signup.html)
+   مربّع 20px بمساحة لمس 48px.
+   ------------------------------------------------------------------------- */
+.terms-group{
+  display:flex;
+  align-items:center;
+  gap:var(--s-3);
+
+  min-height:var(--tap-min);      /* الصفّ كله مساحة لمس */
+  margin-top:calc(var(--s-1) * -1);
+}
+
+.terms-group input[type="checkbox"]{
+  flex:none;
+  width:20px;
+  height:20px;
+  min-height:0;
+  margin:0;
+  padding:0;
+
+  accent-color:var(--primary);
+  cursor:pointer;
+}
+
+/* الـ‎<label for="acceptTerms">‎ يبدّل المربّع أيضاً، فهو مساحة اللمس الفعلية
+   (48px فأكثر بحكم ارتفاع الصفّ) — لا حاجة لتكبير المربّع بصرياً. */
+.terms-group label{
+  flex:1;
+  min-width:0;
+
+  display:flex;
+  align-items:center;
+  min-height:var(--tap-min);
+
+  font-size:var(--fs-sm);
+  font-weight:var(--fw-regular);
+  line-height:var(--lh-readable);
+  color:var(--text2);
+  cursor:pointer;
+}
+
+.terms-group label a{
+  color:var(--primary);
+  font-weight:var(--fw-semibold);
+}
+
+
+/* -------------------------------------------------------------------------
+   3.5 زر Google  —  .google-button / .google-icon
+   المظهر الأساسي (شبح بحدّ) في 03؛ هنا مقاس الأيقونة فقط.
+   ألوان الـSVG هي ألوان Google الرسمية داخل الـHTML ولا تُغيَّر.
+   ------------------------------------------------------------------------- */
+.google-button .google-icon,
+.google-icon{
+  width:19px;
+  height:19px;
+  flex:none;
+}
+
+.google-button span{
+  font-weight:var(--fw-semibold);
+}
+
+
+/* -------------------------------------------------------------------------
+   3.6 الفاصل  —  .divider  مع  <span>أو</span>
+   ------------------------------------------------------------------------- */
+.divider{
+  display:flex;
+  align-items:center;
+  gap:var(--s-3);
+
+  font-size:var(--fs-sm);
+  color:var(--text3);
+}
+
+.divider::before,
+.divider::after{
+  content:'';
+  flex:1 1 auto;
+  height:1px;
+  background:var(--border);
+}
+
+.divider span{
+  flex:none;
+  padding:0 2px;
+  font-weight:var(--fw-medium);
+}
+
+
+/* -------------------------------------------------------------------------
+   3.7 الموافقة القانونية  —  .legal-consent
+   ------------------------------------------------------------------------- */
+.legal-consent{
+  margin:0;
+  text-align:center;
+  font-size:11px;
+  line-height:1.8;
+  color:var(--text3);
+}
+
+.legal-consent a{
+  color:var(--primary);
+  font-weight:var(--fw-semibold);
+}
+
+
+/* -------------------------------------------------------------------------
+   3.8 الرسائل  —  #msg / .msg
+   الـJS يكتب ‎class="msg"‎ فارغة عند المسح، لذلك تختفي الرسالة الفارغة.
+   ------------------------------------------------------------------------- */
+#msg,
+.msg{
+  margin:0;
+}
+
+#msg:empty,
+.msg:empty{
+  display:none;
+}
+
+/* رسالة بلا حالة (‎class="msg"‎ فقط) — نبرة محايدة */
+.msg:not(.info):not(.success):not(.error):not(.warning){
+  background:var(--surface2);
+  color:var(--text2);
+}
+
+
+/* -------------------------------------------------------------------------
+   3.9 روابط أسفل اللوحة  —  .back-link · .login-link-container
+   ------------------------------------------------------------------------- */
+.back-link{
+  display:block;
+  align-self:center;
+  text-align:center;
+}
+
+.login-link-container{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  flex-wrap:wrap;
+  gap:6px;
+
+  text-align:center;
+  font-size:var(--fs-sm);
+  color:var(--text2);
+}
+
+.login-link-container a{
+  color:var(--primary);
+  font-weight:var(--fw-semibold);
+  min-height:var(--tap-min);
+  display:inline-flex;
+  align-items:center;
+}
+
+
+/* -------------------------------------------------------------------------
+   3.10 الشاشات الأكبر — مساحة تنفّس أوسع حول اللوحة
+   ------------------------------------------------------------------------- */
+@media (min-width:600px){
+  body.auth-page > .card,
+  .auth-panel{
+    padding-block:calc(var(--s-8) + var(--safe-top))
+                  calc(var(--s-8) + var(--safe-bottom));
+    gap:var(--s-6);
+  }
+}
+
+
+/* =========================================================================
+   4) الصفحة التعريفية  —  landing.html
+   صفحة ويب مستقلة: بلا شريط تبويب، فتحمل حشواتها بنفسها.
+
+   ⚠️ الكلاس ‎.hero‎ مستخدم أيضاً في index.html و quiz.html ككتلة عنوان بسيطة،
+      لذلك تخطيط الواجهة هنا مقيَّد بـ ‎.nav + .hero‎ (ترتيب landing.html الفعلي)
+      وبـ ‎body.landing-page .hero‎ للمن يفضّل التقييد الصريح — فلا يتسرّب
+      التخطيط ثنائي الأعمدة إلى بقيّة الصفحات.
+   ========================================================================= */
+
+/* -------------------------------------------------------------------------
+   4.1 الشريط العلوي  —  .nav · .logo
+   ------------------------------------------------------------------------- */
+.nav{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:var(--s-3);
+
+  min-height:var(--header-h);
+  padding-top:calc(var(--s-3) + var(--safe-top));
+  padding-bottom:var(--s-3);
+  padding-inline:max(var(--page-pad), var(--safe-start))
+                 max(var(--page-pad), var(--safe-end));
+
+  background:var(--surface);
+  border-bottom:1px solid var(--border);
+}
+
+.logo{
+  display:flex;
+  align-items:center;
+  gap:var(--s-2);
+
+  font-size:var(--fs-lg);
+  font-weight:var(--fw-bold);
+  letter-spacing:-.3px;
+  line-height:var(--lh-tight);
+  color:var(--primary);
+}
+
+/* الحبّة الذهبية «قياس» */
+.logo span{
+  flex:none;
+  padding:4px 10px;
+  font-size:var(--fs-sm);
+  font-weight:var(--fw-bold);
+  background:linear-gradient(180deg, var(--gold-light), var(--gold));
+  color:var(--on-gold);
+  border-radius:var(--r-sm);
+}
+
+.nav-actions{
+  display:flex;
+  align-items:center;
+  gap:var(--s-2);
+  margin-inline-start:auto;
+}
+
+
+/* -------------------------------------------------------------------------
+   4.2 الواجهة  —  .hero
+   عمود واحد في الجوال · عمودان من 860px.
+   ------------------------------------------------------------------------- */
+.nav + .hero,
+body.landing-page .hero{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:var(--s-6);
+
+  width:100%;
+  max-width:var(--content-max);
+  margin-inline:auto;
+
+  padding:var(--s-7) max(var(--page-pad), var(--safe-start))
+          var(--s-6) max(var(--page-pad), var(--safe-end));
+}
+
+.nav + .hero h1,
+body.landing-page .hero h1{
+  margin:var(--s-3) 0 var(--s-3);
+  font-size:var(--fs-hero);
+  font-weight:var(--fw-bold);
+  line-height:var(--lh-tight);
+  letter-spacing:-.6px;
+  color:var(--text);
+}
+
+.nav + .hero > div:first-child > p,
+body.landing-page .hero > div:first-child > p{
+  margin:0;
+  max-width:52ch;
+  font-size:var(--fs-body);
+  line-height:var(--lh-readable);
+  color:var(--text2);
+}
+
+/* الشارة الذهبية أعلى الواجهة — ‎.badge‎ الأساسية في 03 محايدة */
+.hero .badge{
+  background:var(--tint-gold);
+  color:var(--gold-text);
+}
+
+/* أزرار الواجهة — عمودية في الجوال */
+.hero-actions{
+  display:flex;
+  flex-direction:column;
+  gap:var(--s-3);
+  margin-top:var(--s-5);
+}
+.hero-actions .btn{ width:100%; }
+
+@media (min-width:520px){
+  .hero-actions{ flex-direction:row; }
+  .hero-actions .btn{ width:auto; flex:1 1 0; }
+}
+
+@media (min-width:860px){
+  .nav + .hero,
+  body.landing-page .hero{
+    grid-template-columns:1.05fr .95fr;
+    align-items:center;
+    gap:var(--s-8);
+    padding-block:var(--s-8);
+  }
+  .nav + .hero h1,
+  body.landing-page .hero h1{ font-size:32px; }
+}
+
+
+/* -------------------------------------------------------------------------
+   4.3 بطاقة المعاينة  —  .preview-card
+   نموذج سؤال بنفس اللغة البصرية لـ ‎.q-option‎ لكن بنطاق محدود.
+   ------------------------------------------------------------------------- */
+.preview-card{
+  padding:var(--card-pad);
+  background:var(--surface);
+  border-radius:var(--r-xl);
+  box-shadow:var(--sh-raise);
+}
+
+[data-theme="dark"] .preview-card{ border:1px solid var(--border); }
+
+.preview-card h3{
+  margin:0 0 var(--s-3);
+  font-size:var(--fs-card);
+  font-weight:var(--fw-bold);
+  letter-spacing:-.3px;
+}
+
+.quiz-box{
+  display:flex;
+  flex-direction:column;
+  gap:var(--s-2);
+}
+
+.quiz-box > p{
+  margin:0 0 var(--s-1);
+  font-size:var(--fs-body);
+  line-height:var(--lh-readable);
+  color:var(--text);
+  font-weight:var(--fw-medium);
+}
+
+/* نص القطعة */
+.sample-passage{
+  padding:13px 14px;
+  font-size:var(--fs-sm);
+  line-height:var(--lh-readable);
+  color:var(--text2);
+
+  background:var(--surface2);
+  border-radius:var(--r-md);
+  border-inline-start:3px solid var(--primary);
+}
+
+/* الخيارات — نفس منطق ‎.q-option‎ */
+.preview-card .option{
+  display:flex;
+  align-items:center;
+  gap:var(--s-2);
+
+  min-height:48px;
+  padding:11px 13px;
+
+  font-size:var(--fs-body);
+  line-height:var(--lh-normal);
+  color:var(--text);
+
+  background:var(--surface);
+  border:1.5px solid var(--border);
+  border-radius:var(--r-md);
+}
+
+/* الوسم الصغير داخل الخيار («الإجابة الصحيحة» / «إجابة خاطئة») */
+.preview-card .option span{
+  margin-inline-start:auto;
+  flex:none;
+  padding:3px 9px;
+
+  font-size:10px;
+  font-weight:var(--fw-bold);
+  white-space:nowrap;
+  border-radius:var(--r-pill);
+  color:#fff;
+}
+
+.preview-card .option.correct{
+  border-color:var(--success);
+  background:var(--tint-success);
+}
+.preview-card .option.correct span{ background:var(--success); }
+
+.preview-card .option.wrong{
+  border-color:var(--danger);
+  background:var(--tint-danger);
+}
+.preview-card .option.wrong span{ background:var(--danger); }
+
+/* صندوق الشرح */
+.explanation-box{
+  margin-top:var(--s-2);
+  padding:13px 14px;
+
+  font-size:var(--fs-sm);
+  line-height:var(--lh-readable);
+  color:var(--text2);
+
+  background:var(--tint-warning);
+  border-radius:var(--r-md);
+}
+
+.explanation-box strong{
+  color:var(--gold-text);
+  font-weight:var(--fw-bold);
+}
+
+
+/* -------------------------------------------------------------------------
+   4.4 الأقسام  —  .section · .section-desc
+   ------------------------------------------------------------------------- */
+.section{
+  width:100%;
+  max-width:var(--content-max);
+  margin-inline:auto;
+
+  padding:var(--s-7) max(var(--page-pad), var(--safe-start))
+          var(--s-7) max(var(--page-pad), var(--safe-end));
+  text-align:center;
+}
+
+.section h2{
+  margin:0 0 var(--s-2);
+  font-size:var(--fs-page);
+  font-weight:var(--fw-bold);
+  line-height:var(--lh-tight);
+  letter-spacing:-.4px;
+  color:var(--text);
+}
+
+.section-desc{
+  margin:0 auto var(--s-6);
+  max-width:58ch;
+  font-size:var(--fs-body);
+  line-height:var(--lh-readable);
+  color:var(--text2);
+}
+
+
+/* -------------------------------------------------------------------------
+   4.5 المزايا  —  .features · .feature
+   عمودان في الجوال · أربعة من 860px.
+   ------------------------------------------------------------------------- */
+.features{
+  display:grid;
+  grid-template-columns:repeat(2, minmax(0, 1fr));
+  gap:var(--card-gap);
+  text-align:start;
+}
+
+@media (min-width:860px){
+  .features{
+    grid-template-columns:repeat(4, minmax(0, 1fr));
+    gap:var(--s-4);
+  }
+}
+
+.feature{
+  display:flex;
+  flex-direction:column;
+  gap:var(--s-2);
+
+  padding:var(--card-pad);
+  background:var(--surface);
+  border-radius:var(--r-lg);
+  box-shadow:var(--sh-card);
+}
+
+[data-theme="dark"] .feature{ border:1px solid var(--border); }
+
+/* مربّع الأيقونة — يقبل ‎<div class="feature-icon">‎ أو ‎<svg>‎ مباشرة */
+.feature-icon,
+.feature > svg{
+  width:34px;
+  height:34px;
+  flex:none;
+
+  display:grid;
+  place-items:center;
+
+  font-size:16px;
+  line-height:1;
+
+  background:var(--tint-primary);
+  color:var(--primary);
+  border-radius:var(--r-sm);
+}
+
+.feature-icon svg{
+  width:18px;
+  height:18px;
+  stroke:currentColor;
+  fill:none;
+  stroke-width:1.8;
+}
+
+.feature h3,
+.feature h4{
+  margin:0;
+  font-size:var(--fs-md);
+  font-weight:var(--fw-bold);
+  line-height:var(--lh-tight);
+  letter-spacing:-.2px;
+  color:var(--text);
+}
+
+.feature p{
+  margin:0;
+  font-size:var(--fs-sm);
+  line-height:var(--lh-readable);
+  color:var(--text2);
+}
+
+
+/* -------------------------------------------------------------------------
+   4.6 نداء الإجراء  —  .cta
+   ------------------------------------------------------------------------- */
+.cta{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:var(--s-3);
+
+  width:calc(100% - (var(--page-pad) * 2));
+  max-width:var(--content-max);
+  margin:0 auto var(--s-7);
+
+  padding:var(--s-7) var(--s-5);
+  text-align:center;
+
+  background:var(--tint-gold);
+  border:1px solid var(--tint-gold);
+  border-radius:var(--r-xl);
+}
+
+.cta h2{
+  margin:0;
+  font-size:var(--fs-section);
+  font-weight:var(--fw-bold);
+  letter-spacing:-.4px;
+  color:var(--text);
+}
+
+.cta p{
+  margin:0;
+  max-width:46ch;
+  font-size:var(--fs-body);
+  line-height:var(--lh-readable);
+  color:var(--text2);
+}
+
+.cta .btn{
+  width:100%;
+  max-width:340px;
+  margin-top:var(--s-2);
+}
+
+
+/* -------------------------------------------------------------------------
+   4.7 التذييل  —  .footer
+   ------------------------------------------------------------------------- */
+.footer{
+  padding:var(--s-5) max(var(--page-pad), var(--safe-start))
+          calc(var(--s-5) + var(--safe-bottom))
+          max(var(--page-pad), var(--safe-end));
+
+  text-align:center;
+  font-size:var(--fs-xs);
+  line-height:var(--lh-normal);
+  color:var(--text3);
+
+  border-top:1px solid var(--border);
+}
+
+
+/* =========================================================================
+   5) شاشة البداية  —  .splash   (شاشة جديدة)
+   بنية مقترحة:
+   <div class="splash">
+     <div class="splash-mark">ق</div>
+     <h1 class="splash-title">محاكي قياس</h1>
+     <p  class="splash-sub">تدرّب على اختبار القدرات</p>
+     <div class="splash-loader"></div>
+   </div>
+   ========================================================================= */
+.splash{
+  position:relative;
+  overflow:hidden;
+
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:var(--s-4);
+
+  min-height:100dvh;
+  min-height:100vh;
+
+  padding:calc(var(--s-8) + var(--safe-top))
+          max(var(--s-6), var(--safe-start))
+          calc(var(--s-8) + var(--safe-bottom))
+          max(var(--s-6), var(--safe-end));
+
+  text-align:center;
+  color:#fff;
+  background:linear-gradient(165deg, var(--primary-dark), var(--primary) 65%);
+}
+
+/* الوهج الذهبي الزخرفي */
+.splash::before{
+  content:'';
+  position:absolute;
+  inset-inline-start:50%;
+  top:18%;
+  width:min(560px, 130vw);
+  height:min(560px, 130vw);
+  transform:translateX(50%);
+
+  background:radial-gradient(circle, var(--gold-light), transparent 62%);
+  opacity:.18;
+  pointer-events:none;
+}
+[dir="ltr"] .splash::before{ transform:translateX(-50%); }
+
+.splash > *{ position:relative; z-index:1; }
+
+/* العلامة المربّعة */
+.splash-mark{
+  width:96px;
+  height:96px;
+  flex:none;
+
+  display:grid;
+  place-items:center;
+
+  font-size:38px;
+  font-weight:var(--fw-bold);
+  line-height:1;
+  color:var(--gold-light);
+
+  background:rgba(255,255,255,.12);
+  border:1.5px solid rgba(255,255,255,.22);
+  border-radius:26px;
+
+  -webkit-backdrop-filter:blur(8px);
+          backdrop-filter:blur(8px);
+}
+
+.splash-mark svg{
+  width:44px;
+  height:44px;
+  stroke:currentColor;
+  fill:none;
+  stroke-width:1.6;
+}
+
+.splash-title{
+  margin:0;
+  font-size:var(--fs-hero);
+  font-weight:var(--fw-bold);
+  letter-spacing:-.6px;
+  color:#fff;
+}
+
+.splash-sub{
+  margin:calc(var(--s-2) * -1) 0 0;
+  font-size:var(--fs-body);
+  line-height:var(--lh-normal);
+  color:#fff;
+  opacity:.75;
+}
+
+/* شريط التحميل غير المحدَّد */
+.splash-loader{
+  position:relative;
+  overflow:hidden;
+
+  width:120px;
+  height:3px;
+  margin:var(--s-4) auto 0;
+
+  background:rgba(255,255,255,.20);
+  border-radius:var(--r-pill);
+}
+
+.splash-loader::after{
+  content:'';
+  position:absolute;
+  inset-block:0;
+  inset-inline-start:0;
+
+  width:42%;
+  border-radius:inherit;
+  background:var(--gold-light);
+
+  animation:splash-sweep 1.15s var(--ease) infinite alternate;
+}
+
+@keyframes splash-sweep{
+  from{ transform:translateX(0); }
+  to  { transform:translateX(138%); }
+}
+
+/* احترام تقليل الحركة — شريط ثابت بدل المتحرّك */
+@media (prefers-reduced-motion: reduce){
+  .splash-loader::after{
+    animation:none !important;
+    width:100%;
+    opacity:.7;
+  }
+}
+
+
+/* =========================================================================
+   6) شاشات التعريف  —  .onboarding   (شاشات جديدة)
+   بنية مقترحة:
+   <div class="onboarding">
+     <button class="onboarding-skip" type="button">تخطّي</button>
+     <div class="onboarding-art">
+       <div class="onboarding-illustration"><svg …></svg></div>
+     </div>
+     <h2 class="onboarding-title">…</h2>
+     <p  class="onboarding-text">…</p>
+     <div class="onboarding-dots"><i class="on"></i><i></i><i></i></div>
+     <button class="btn primary btn-block" type="button">التالي</button>
+   </div>
+   ========================================================================= */
+.onboarding{
+  display:flex;
+  flex-direction:column;
+  gap:var(--s-4);
+
+  min-height:100dvh;
+  min-height:100vh;
+
+  padding:calc(var(--s-4) + var(--safe-top))
+          max(var(--s-5), var(--safe-start))
+          calc(var(--s-6) + var(--safe-bottom))
+          max(var(--s-5), var(--safe-end));
+
+  text-align:center;
+  background:var(--bg);
+}
+
+/* زرّ التخطّي — أعلى بداية الشاشة */
+.onboarding-skip{
+  align-self:flex-start;
+
+  display:inline-flex;
+  align-items:center;
+
+  min-height:40px;
+  padding:8px 12px;
+  margin-inline-start:calc(var(--s-3) * -1);
+
+  font-family:var(--font);
+  font-size:var(--fs-sm);
+  font-weight:var(--fw-semibold);
+  color:var(--text3);
+
+  background:transparent;
+  border:0;
+  border-radius:var(--r-sm);
+  cursor:pointer;
+  -webkit-tap-highlight-color:transparent;
+}
+.onboarding-skip:active{ color:var(--text2); }
+
+/* منطقة الرسم — تأخذ المساحة المتبقّية وتتوسّط محتواها */
+.onboarding-art{
+  flex:1 1 auto;
+  display:grid;
+  place-items:center;
+  min-height:0;
+}
+
+/* المربّع الحاوي للرسم */
+.onboarding-illustration{
+  position:relative;
+
+  width:210px;
+  height:210px;
+  max-width:70vw;
+  max-height:70vw;
+
+  display:grid;
+  place-items:center;
+
+  background:var(--tint-primary);
+  border-radius:44px;
+}
+
+.onboarding-illustration svg{
+  width:110px;
+  height:110px;
+  stroke:var(--primary);
+  fill:none;
+  stroke-width:1.5;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+}
+
+.onboarding-illustration img{
+  width:110px;
+  height:110px;
+  object-fit:contain;
+}
+
+/* دائرة ذهبية زخرفية */
+.onboarding-illustration::after{
+  content:'';
+  position:absolute;
+  inset-inline-end:-10px;
+  top:-10px;
+
+  width:56px;
+  height:56px;
+  border-radius:50%;
+  background:var(--tint-gold);
+  pointer-events:none;
+}
+
+.onboarding-title{
+  margin:0;
+  font-size:var(--fs-page);
+  font-weight:var(--fw-bold);
+  line-height:var(--lh-tight);
+  letter-spacing:-.4px;
+  color:var(--text);
+}
+
+.onboarding-text{
+  margin:0 auto;
+  max-width:40ch;
+  font-size:var(--fs-body);
+  line-height:var(--lh-readable);
+  color:var(--text2);
+}
+
+/* المؤشّرات */
+.onboarding-dots{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:6px;
+
+  margin:var(--s-2) 0;
+}
+
+.onboarding-dots i{
+  display:block;
+  width:7px;
+  height:7px;
+
+  background:var(--border);
+  border-radius:var(--r-pill);
+
+  transition:width var(--dur) var(--ease), background var(--dur) var(--ease);
+}
+
+.onboarding-dots i.on{
+  width:22px;
+  background:var(--gold);
+}
+
+/* الشاشات الأطول — رسم أكبر قليلاً */
+@media (min-height:760px){
+  .onboarding-illustration{
+    width:240px;
+    height:240px;
+  }
+  .onboarding-illustration svg{ width:126px; height:126px; }
+}
+
+
+/* =========================================================================
+   7) حركة الدخول المشتركة لهذه الصفحات
+   ========================================================================= */
+@keyframes page-fade-in{
+  from{ opacity:0; transform:translateY(6px); }
+  to  { opacity:1; transform:none; }
+}
+
+@media (prefers-reduced-motion: reduce){
+  #account-loading,
+  .account-loading,
+  #account-content,
+  .account-grid{
+    animation:none !important;
+    transform:none !important;
+  }
+  .onboarding-dots i{ transition:none; }
+}
+
+.theme-selector {
+    display: flex;
+    align-items: center;
+
+    gap: 8px;
+}
+
+
+.theme-option {
+    min-height: 40px;
+
+    padding:
+        7px 12px;
+
+    border:
+        1px solid
+        var(--border);
+
+    border-radius:
+        var(--r-sm);
+
+    background:
+        var(--surface2);
+
+    color:
+        var(--text2);
+
+    font-family:
+        var(--font);
+
+    font-size:
+        var(--fs-sm);
+
+    font-weight:
+        var(--fw-semibold);
+
+    cursor:
+        pointer;
+}
+
+
+.theme-option.active {
+    border-color:
+        var(--primary);
+
+    background:
+        var(--tint-primary);
+
+    color:
+        var(--primary);
+}
+
+/* =========================================================
+   LOGIN PAGE
+========================================================= */
+
+body {
+    min-height: 100vh;
+}
+
+.card {
+    width: min(100% - 32px, 420px);
+
+    margin:
+        0 auto;
+
+    padding:
+        32px 24px;
+
+    display: flex;
+    flex-direction: column;
+
+    align-items: stretch;
+
+    border:
+        1px solid
+        var(--border);
+
+    border-radius:
+        var(--r-lg);
+
+    background:
+        var(--surface);
+
+    box-shadow:
+        var(--sh-card);
+}
+
+
+/* =========================================================
+   APP NAME
+========================================================= */
+
+.app-name {
+    margin:
+        0 0 16px;
+
+    color:
+        var(--primary-dark);
+
+    font-size:
+        24px;
+
+    font-weight:
+        var(--fw-bold);
+
+    line-height:
+        1.4;
+
+    text-align:
+        center;
+}
+
+
+/* =========================================================
+   SUBTITLE
+========================================================= */
+
+.subtitle {
+    max-width:
+        320px;
+
+    margin:
+        0 auto 28px;
+
+    color:
+        var(--text2);
+
+    font-size:
+        14px;
+
+    line-height:
+        1.9;
+
+    text-align:
+        center;
+}
+
+
+/* =========================================================
+   GOOGLE BUTTON
+========================================================= */
+
+.google-button {
+    width:
+        100%;
+
+    min-height:
+        50px;
+
+    padding:
+        10px 16px;
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    gap:
+        10px;
+
+    border:
+        1px solid
+        var(--border);
+
+    border-radius:
+        var(--r-sm);
+
+    background:
+        var(--surface);
+
+    color:
+        var(--text);
+
+    font-family:
+        var(--font);
+
+    font-size:
+        14px;
+
+    font-weight:
+        var(--fw-semibold);
+
+    cursor:
+        pointer;
+
+    transition:
+        border-color var(--dur) var(--ease),
+        background var(--dur) var(--ease),
+        transform var(--dur) var(--ease);
+}
+
+
+.google-button:hover:not(:disabled) {
+    border-color:
+        var(--primary);
+
+    background:
+        var(--tint-primary);
+}
+
+
+.google-button:active:not(:disabled) {
+    transform:
+        scale(0.99);
+}
+
+
+.google-button:disabled {
+    opacity:
+        0.6;
+
+    cursor:
+        not-allowed;
+}
+
+
+/* =========================================================
+   GOOGLE ICON
+========================================================= */
+
+.google-icon {
+    width:
+        21px;
+
+    height:
+        21px;
+
+    flex-shrink:
+        0;
+}
+
+
+/* =========================================================
+   LEGAL CONSENT
+========================================================= */
+
+.legal-consent {
+    max-width:
+        330px;
+
+    margin:
+        24px auto 0;
+
+    color:
+        var(--text3);
+
+    font-size:
+        12px;
+
+    line-height:
+        2;
+
+    text-align:
+        center;
+}
+
+
+.legal-consent a {
+    color:
+        var(--primary);
+
+    font-weight:
+        var(--fw-semibold);
+
+    text-decoration:
+        none;
+}
+
+
+.legal-consent a:hover {
+    text-decoration:
+        underline;
+}
+
+
+/* =========================================================
+   STATUS MESSAGE
+========================================================= */
+
+.msg {
+    display:
+        none;
+
+    margin-top:
+        20px;
+
+    padding:
+        12px 14px;
+
+    border-radius:
+        var(--r-sm);
+
+    font-size:
+        13px;
+
+    line-height:
+        1.8;
+
+    text-align:
+        center;
+}
+
+
+.msg.info,
+.msg.success,
+.msg.error {
+    display:
+        block;
+}
+
+
+.msg.info {
+    background:
+        var(--tint-warning);
+
+    color:
+        var(--warning);
+}
+
+
+.msg.success {
+    background:
+        var(--tint-success);
+
+    color:
+        var(--success);
+}
+
+
+.msg.error {
+    background:
+        var(--tint-danger);
+
+    color:
+        var(--danger);
+}
+
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 600px) {
+
+    body.auth-page {
+        padding:
+            24px 14px;
+    }
+
+    body.auth-page > .card {
+        width:
+            100%;
+
+        padding:
+            28px 20px;
+    }
+
+
+    .app-name {
+        margin-bottom:
+            14px;
+
+        font-size:
+            22px;
+    }
+
+
+    .subtitle {
+        margin-bottom:
+            26px;
+
+        font-size:
+            13.5px;
+
+        line-height:
+            1.9;
+    }
+
+
+    .google-button {
+        min-height:
+            50px;
+    }
+
+
+    .legal-consent {
+        margin-top:
+            22px;
+
+        line-height:
+            1.9;
+    }
+}
+
+
+/* =========================================================
+   SMALL PHONES
+========================================================= */
+
+@media (max-width: 380px) {
+
+    body.auth-page {
+        padding:
+            18px 12px;
+    }
+
+    body.auth-page > .card {
+        padding:
+            24px 16px;
+    }
+
+
+    .subtitle {
+        margin-bottom:
+            24px;
+    }
+}
+/* =========================================================
+   LEGAL PAGES
+========================================================= */
+
+.legal-topbar {
+    position: sticky;
+    top: 0;
+
+    z-index: 80;
+
+    background:
+        var(--surface);
+
+    border-bottom:
+        1px solid
+        var(--border);
+}
+
+
+.legal-topbar-inner {
+    width:
+        min(
+            100%,
+            var(--content-max)
+        );
+
+    min-height:
+        var(--header-h);
+
+    margin:
+        0 auto;
+
+    padding:
+        0 var(--page-pad);
+
+    display:
+        grid;
+
+    grid-template-columns:
+        48px 1fr 48px;
+
+    align-items:
+        center;
+}
+
+
+.legal-back-button {
+    width:
+        40px;
+
+    height:
+        40px;
+
+    display:
+        inline-flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    border-radius:
+        var(--r-pill);
+
+    color:
+        var(--text);
+
+    font-size:
+        22px;
+
+    font-weight:
+        var(--fw-semibold);
+
+    text-decoration:
+        none;
+
+    transition:
+        background
+        var(--dur)
+        var(--ease);
+}
+
+
+.legal-back-button:hover {
+    background:
+        var(--surface2);
+}
+
+
+.legal-back-button:active {
+    transform:
+        scale(0.96);
+}
+
+
+.legal-topbar-title {
+    color:
+        var(--text);
+
+    font-size:
+        var(--fs-lg);
+
+    font-weight:
+        var(--fw-bold);
+
+    text-align:
+        center;
+}
+
+
+.legal-topbar-spacer {
+    width:
+        40px;
+
+    height:
+        40px;
+}
+
+
+/* =========================================================
+   LEGAL PAGE CONTAINER
+========================================================= */
+
+.page-container {
+    width:
+        min(
+            calc(
+                100% - 32px
+            ),
+            760px
+        );
+
+    margin:
+        0 auto;
+
+    padding:
+        24px 0
+        calc(
+            40px +
+            env(
+                safe-area-inset-bottom
+            )
+        );
+}
+
+
+/* =========================================================
+   LEGAL HERO
+========================================================= */
+
+.legal-hero {
+    margin-bottom:
+        16px;
+
+    padding:
+        24px 20px;
+
+    border:
+        1px solid
+        var(--border);
+
+    border-radius:
+        var(--r-lg);
+
+    background:
+        var(--surface);
+
+    box-shadow:
+        var(--sh-card);
+}
+
+
+.legal-hero .eyebrow {
+    margin-bottom:
+        8px;
+
+    color:
+        var(--gold-text);
+
+    font-size:
+        var(--fs-xs);
+
+    font-weight:
+        var(--fw-bold);
+
+    letter-spacing:
+        0.04em;
+}
+
+
+.legal-hero h1 {
+    margin:
+        0 0 12px;
+
+    color:
+        var(--text);
+
+    font-size:
+        var(--fs-page);
+
+    line-height:
+        var(--lh-tight);
+}
+
+
+.legal-hero .intro {
+    margin:
+        0;
+
+    color:
+        var(--text2);
+
+    font-size:
+        var(--fs-body);
+
+    line-height:
+        var(--lh-readable);
+}
+
+
+.last-updated {
+    display:
+        inline-flex;
+
+    margin-top:
+        16px;
+
+    padding:
+        6px 10px;
+
+    border-radius:
+        var(--r-pill);
+
+    background:
+        var(--surface2);
+
+    color:
+        var(--text3);
+
+    font-size:
+        var(--fs-xs);
+}
+
+@media (
+    max-width: 600px
+) {
+
+    .page-container {
+        width:
+            calc(
+                100% - 24px
+            );
+
+        padding-top:
+            16px;
+    }
+
+
+    .legal-hero {
+        padding:
+            20px 16px;
+    }
+
+
+    .legal-topbar-inner {
+        padding:
+            0 12px;
+    }
+}
+
+/* =========================================================
+   LEGAL TABLE OF CONTENTS
+========================================================= */
+
+.toc {
+    display:
+        grid;
+
+    grid-template-columns:
+        repeat(
+            2,
+            minmax(
+                0,
+                1fr
+            )
+        );
+
+    gap:
+        8px;
+
+    margin-top:
+        20px;
+}
+
+
+.toc a {
+    min-height:
+        44px;
+
+    padding:
+        10px 12px;
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    border:
+        1px solid
+        var(--border);
+
+    border-radius:
+        var(--r-sm);
+
+    background:
+        var(--surface2);
+
+    color:
+        var(--primary);
+
+    font-size:
+        var(--fs-sm);
+
+    font-weight:
+        var(--fw-semibold);
+
+    line-height:
+        1.5;
+
+    text-align:
+        center;
+
+    text-decoration:
+        none;
+
+    transition:
+        background
+        var(--dur)
+        var(--ease),
+        border-color
+        var(--dur)
+        var(--ease),
+        transform
+        var(--dur)
+        var(--ease);
+}
+
+
+.toc a:hover {
+    border-color:
+        var(--primary);
+
+    background:
+        var(--tint-primary);
+}
+
+
+.toc a:active {
+    transform:
+        scale(0.98);
+}
+
+
+/* =========================================================
+   LEGAL CONTENT CARDS
+========================================================= */
+
+.legal-card {
+    margin-bottom:
+        12px;
+
+    padding:
+        20px 18px;
+
+    border:
+        1px solid
+        var(--border);
+
+    border-radius:
+        var(--r-md);
+
+    background:
+        var(--surface);
+
+    box-shadow:
+        var(--sh-card);
+}
+
+
+.legal-card h2 {
+    margin:
+        0 0 14px;
+
+    color:
+        var(--primary);
+
+    font-size:
+        var(--fs-card);
+
+    font-weight:
+        var(--fw-bold);
+
+    line-height:
+        1.5;
+}
+
+
+.legal-card h3 {
+    margin:
+        20px 0 8px;
+
+    color:
+        var(--text);
+
+    font-size:
+        var(--fs-md);
+
+    font-weight:
+        var(--fw-bold);
+
+    line-height:
+        1.6;
+}
+
+
+.legal-card p {
+    margin:
+        0 0 12px;
+
+    color:
+        var(--text2);
+
+    font-size:
+        var(--fs-body);
+
+    line-height:
+        var(--lh-readable);
+}
+
+
+.legal-card p:last-child {
+    margin-bottom:
+        0;
+}
+
+
+/* =========================================================
+   LEGAL LISTS
+========================================================= */
+
+.legal-card ul {
+    margin:
+        8px 0 14px;
+
+    padding-right:
+        20px;
+
+    color:
+        var(--text2);
+}
+
+
+.legal-card li {
+    margin-bottom:
+        8px;
+
+    padding-right:
+        2px;
+
+    font-size:
+        var(--fs-body);
+
+    line-height:
+        var(--lh-readable);
+}
+
+
+.legal-card li:last-child {
+    margin-bottom:
+        0;
+}
+
+
+/* =========================================================
+   INFO / IMPORTANT BOXES
+========================================================= */
+
+.highlight-box,
+.important-box {
+    margin-top:
+        16px;
+
+    padding:
+        14px 16px;
+
+    border-radius:
+        var(--r-sm);
+
+    font-size:
+        var(--fs-sm);
+
+    line-height:
+        var(--lh-readable);
+}
+
+
+.highlight-box {
+    border:
+        1px solid
+        rgba(
+            26,
+            79,
+            138,
+            0.14
+        );
+
+    border-right:
+        4px solid
+        var(--primary);
+
+    background:
+        var(--tint-primary);
+
+    color:
+        var(--text2);
+}
+
+
+.important-box {
+    border:
+        1px solid
+        rgba(
+            200,
+            168,
+            75,
+            0.22
+        );
+
+    border-right:
+        4px solid
+        var(--gold);
+
+    background:
+        var(--tint-gold);
+
+    color:
+        var(--text2);
+}
+
+
+/* =========================================================
+   LEGAL FOOTER
+========================================================= */
+
+.legal-footer {
+    width:
+        min(
+            calc(
+                100% - 32px
+            ),
+            760px
+        );
+
+    margin:
+        0 auto;
+
+    padding:
+        24px 0
+        calc(
+            24px +
+            env(
+                safe-area-inset-bottom
+            )
+        );
+
+    border-top:
+        1px solid
+        var(--border);
+
+    color:
+        var(--text3);
+
+    font-size:
+        var(--fs-xs);
+
+    line-height:
+        1.8;
+
+    text-align:
+        center;
+}
+
+
+.legal-footer p {
+    margin:
+        0 0 8px;
+}
+
+
+.legal-footer p:last-child {
+    margin-bottom:
+        0;
+}
+
+
+.legal-footer a {
+    color:
+        var(--primary);
+
+    font-weight:
+        var(--fw-semibold);
+
+    text-decoration:
+        none;
+}
+
+
+/* =========================================================
+   MOBILE LEGAL CARDS
+========================================================= */
+
+@media (
+    max-width: 600px
+) {
+
+    .toc {
+        grid-template-columns:
+            1fr 1fr;
+
+        gap:
+            6px;
+    }
+
+
+    .toc a {
+        min-height:
+            42px;
+
+        padding:
+            9px 8px;
+
+        font-size:
+            11.5px;
+    }
+
+
+    .legal-card {
+        margin-bottom:
+            10px;
+
+        padding:
+            18px 16px;
+    }
+
+
+    .legal-card h2 {
+        font-size:
+            16px;
+    }
+
+
+    .legal-card h3 {
+        font-size:
+            14px;
+    }
+
+
+    .highlight-box,
+    .important-box {
+        padding:
+            12px 14px;
+    }
+
+
+    .legal-footer {
+        width:
+            calc(
+                100% - 24px
+            );
+    }
+}
+
+/* =========================================================
+   LEGAL DANGER BOX
+========================================================= */
+
+.danger-box {
+    margin-top:
+        16px;
+
+    padding:
+        14px 16px;
+
+    border:
+        1px solid
+        rgba(
+            192,
+            57,
+            43,
+            0.18
+        );
+
+    border-right:
+        4px solid
+        var(--danger);
+
+    border-radius:
+        var(--r-sm);
+
+    background:
+        var(--tint-danger);
+
+    color:
+        var(--text2);
+
+    font-size:
+        var(--fs-sm);
+
+    line-height:
+        var(--lh-readable);
+}
+
+
+/* Mobile */
+@media (max-width: 600px) {
+
+    .danger-box {
+        padding:
+            12px 14px;
+    }
+
+}
