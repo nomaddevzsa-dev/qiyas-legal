@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>محاكي قياس — الدعم والمستندات</title>
+<style>
+  :root{
+    --primary:#164379; --gold:#d7ba64;
+    --bg:#f0efeb; --surface:#fff; --text:#191a2c; --text2:#616575; --border:#ddd8cc;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{ --primary:#5a9ad8; --bg:#11141b; --surface:#1c202b;
+           --text:#f2f1ed; --text2:#b9c0ce; --border:#2d3546; }
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--text);
+       font-family:"IBM Plex Sans Arabic",system-ui,Tahoma,sans-serif;
+       display:grid;place-items:center;min-height:100vh;padding:24px;line-height:1.7}
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:18px;
+        padding:32px;max-width:560px;width:100%}
+  h1{font-size:26px;margin-bottom:6px}
+  .sub{color:var(--text2);font-size:15px;margin-bottom:24px}
+  a.item{display:flex;justify-content:space-between;align-items:center;gap:12px;
+         padding:14px 16px;margin-bottom:10px;border:1px solid var(--border);
+         border-radius:12px;text-decoration:none;color:var(--text);font-size:16px}
+  a.item:hover{border-color:var(--primary)}
+  a.item span{color:var(--text2);font-size:13px}
+  .contact{margin-top:20px;font-size:14px;color:var(--text2)}
+  .contact a{color:var(--primary)}
+  .note{margin-top:22px;padding-top:18px;border-top:1px solid var(--border);
+        font-size:13px;color:var(--text2)}
+</style>
+</head>
+<body>
+  <main class="card">
+    <h1>محاكي قياس</h1>
+    <p class="sub">تدريب اختبار القدرات العامة — الدعم والمستندات</p>
+
+    <a class="item" href="privacy-policy.html">سياسة الخصوصية <span>عرض</span></a>
+    <a class="item" href="terms-of-service.html">شروط الاستخدام <span>عرض</span></a>
+    <a class="item" href="delete-account.html">حذف الحساب <span>عرض</span></a>
+
+    <p class="contact">للدعم والاستفسارات:
+      <a href="mailto:nomaddevz.sa@gmail.com">nomaddevz.sa@gmail.com</a>
+    </p>
+
+    <p class="note">محاكي قياس أداة تدريب مستقلة، وليست تابعة لأي جهة رسمية ولا معتمدة منها.</p>
+  </main>
+</body>
+</html>
